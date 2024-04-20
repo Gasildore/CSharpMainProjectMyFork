@@ -49,11 +49,6 @@ namespace UnitBrains.Player
 
             if (result.Count == 0) return result;
 
-            while (result.Count > 1)
-            {
-                result.RemoveAt(result.Count - 1);
-            }
-
             float minDistance = float.MaxValue;
             Vector2Int nearTarget = Vector2Int.zero;
 
