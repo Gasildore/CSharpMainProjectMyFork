@@ -99,7 +99,7 @@ namespace UnitBrains.Player
             if (_overheated)
             {
                 _cooldownTime += Time.deltaTime;
-                float t = _cooldownTime / (OverheatCooldown / 10);
+                float t = _cooldownTime / (OverheatCooldown/10);
                 _temperature = Mathf.Lerp(OverheatTemperature, 0, t);
                 if (t >= 1)
                 {
@@ -111,7 +111,7 @@ namespace UnitBrains.Player
 
         private int GetTemperature()
         {
-            if (_overheated) return (int)OverheatTemperature;
+            if(_overheated) return (int) OverheatTemperature;
             else return (int)_temperature;
         }
 
