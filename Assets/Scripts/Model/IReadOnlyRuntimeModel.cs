@@ -7,17 +7,17 @@ namespace Model
 {
     public interface IReadOnlyRuntimeModel
     {
-        IReadOnlyMap RoMap { get; }
-        RuntimeModel.GameStage Stage { get; }
-        public int Level { get; }
-        public IReadOnlyDictionary<int, int> RoMoney { get; }
-        public IEnumerable<IReadOnlyUnit> RoUnits { get; }
-        public IEnumerable<IReadOnlyProjectile> RoProjectiles { get; }
+        IReadOnlyMap RoMap { get; } // Карта игры
+        RuntimeModel.GameStage Stage { get; }// Текущее состояние игры
+        public int Level { get; } // Какой уровень
+        public IReadOnlyDictionary<int, int> RoMoney { get; } // Деньги
+        public IEnumerable<IReadOnlyUnit> RoUnits { get; } // Все юниты
+        public IEnumerable<IReadOnlyProjectile> RoProjectiles { get; } // Проджектайлы
         
-        public IEnumerable<IReadOnlyUnit> RoPlayerUnits { get; }
-        public IEnumerable<IReadOnlyUnit> RoBotUnits { get; }
-        public IReadOnlyList<IReadOnlyBase> RoBases { get; }
+        public IEnumerable<IReadOnlyUnit> RoPlayerUnits { get; } // Юниты игрока
+        public IEnumerable<IReadOnlyUnit> RoBotUnits { get; } // Юниты противника
+        public IReadOnlyList<IReadOnlyBase> RoBases { get; } // Все базы
 
-        public bool IsTileWalkable(Vector2Int pos);
+        public bool IsTileWalkable(Vector2Int pos); // Определяет является ли ячейка карты проходимой
     }
 }

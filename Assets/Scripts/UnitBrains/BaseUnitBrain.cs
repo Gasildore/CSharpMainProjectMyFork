@@ -12,12 +12,12 @@ namespace UnitBrains
 {
     public abstract class BaseUnitBrain
     {
-        public virtual string TargetUnitName => string.Empty;
-        public virtual bool IsPlayerUnitBrain => true;
-        public virtual BaseUnitPath ActivePath => _activePath;
+        public virtual string TargetUnitName => string.Empty;// Определяет название юнита
+        public virtual bool IsPlayerUnitBrain => true;// Принадлежит ли юнит игроку
+        public virtual BaseUnitPath ActivePath => _activePath;// Активный путь, по которому движется юнит
         
-        protected Unit unit { get; private set; }
-        protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();
+        protected Unit unit { get; private set; }// Ссылка на юнита, которому принадлежит UnitBrain
+        protected IReadOnlyRuntimeModel runtimeModel => ServiceLocator.Get<IReadOnlyRuntimeModel>();// runtimeModel хранит сведения о текущей сессии
         private BaseUnitPath _activePath = null;
         
         private readonly Vector2[] _projectileShifts = new Vector2[]
@@ -33,14 +33,14 @@ namespace UnitBrains
 
         public virtual Vector2Int GetNextStep()
         {
-            if (HasTargetsInRange())
-                return unit.Pos;
+            if (HasTargetsInRange())// Проверяет, есть ли цели которые можно атаковать
+                return unit.Pos;// Если есть, то остаётся на месте (и стреляет)
 
             var target = runtimeModel.RoMap.Bases[
-                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];
+                IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];// Если цели нет, то выбирает целью базу
 
-            _activePath = new DummyUnitPath(runtimeModel, unit.Pos, target);
-            return _activePath.GetNextStepFrom(unit.Pos);
+            _activePath = new DummyUnitPath(runtimeModel, unit.Pos, target);// Прокладывается путь с помощью класса DummyUnitPath
+            return _activePath.GetNextStepFrom(unit.Pos);// Передаёт текущую позицию юнита и возвращает куда идти
         }
 
         public List<BaseProjectile> GetProjectiles()

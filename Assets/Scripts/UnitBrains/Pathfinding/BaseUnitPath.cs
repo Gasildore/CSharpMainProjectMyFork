@@ -9,10 +9,10 @@ namespace UnitBrains.Pathfinding
         public Vector2Int StartPoint => startPoint;
         public Vector2Int EndPoint => endPoint;
         
-        protected readonly IReadOnlyRuntimeModel runtimeModel;
-        protected readonly Vector2Int startPoint;
-        protected readonly Vector2Int endPoint;
-        protected Vector2Int[] path = null;
+        protected readonly IReadOnlyRuntimeModel runtimeModel;// Проверяет, является ли клетка проходимой
+        protected readonly Vector2Int startPoint;// Стартовая точка
+        protected readonly Vector2Int endPoint;// Конечная точка
+        protected Vector2Int[] path = null;// путь в виде массива клеток
 
         protected abstract void Calculate();
         
