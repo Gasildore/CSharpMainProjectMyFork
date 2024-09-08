@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.UnitBrains.Pathfinding;
 using Model;
 using Model.Runtime.Projectiles;
 using UnityEngine;
 using Utilities;
+using static UnityEngine.GraphicsBuffer;
 
 namespace UnitBrains.Player
 {
@@ -24,8 +26,7 @@ namespace UnitBrains.Player
 
         public SecondUnitBrain()
         {
-            unitNumber = unitСounter;
-            unitСounter++;
+            unitNumber = unitСounter++;
         }
 
         protected override void GenerateProjectiles(Vector2Int forTarget, List<BaseProjectile> intoList)
@@ -36,20 +37,73 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             if (GetTemperature() >= overheatTemperature)
                 return;
-            else
-            {
-                for (int i = 0; i <= GetTemperature(); i++)
+            IncreaseTemperature();
+            for (int i = 0; i <= GetTemperature(); i++)
                 {
                     var projectile = CreateProjectile(forTarget);
                     AddProjectileToList(projectile, intoList);
                 }
-                IncreaseTemperature();
-            }
             ///////////////////////////////////////
         }
 
+        //public override Vector2Int GetNextStep()
+        //{
+        //    if (targets.Count > 0)
+        //    {
+        //        if (IsTargetInRange(targets[0]))
+        //        {
+        //            return unit.Pos;
+        //        }
+        //        var path = new AStarUnitPath(runtimeModel, unit.Pos, targets[0]);
+        //        return path.GetNextStepFrom(unit.Pos);
+        //    }
+        //    else
+        //    {
+        //        return unit.Pos;
+        //    }
+        //}
+
+
+        //protected override List<Vector2Int> SelectTargets()
+        //{
+        //    List<Vector2Int> result = new List<Vector2Int>();
+
+        //    targets.Clear();
+
+        //    foreach (Vector2Int target in GetAllTargets())
+        //    {
+        //        targets.Add(target);
+        //    }
+        //    if (targets.Count == 0)
+        //    {
+        //        if (IsPlayerUnitBrain)
+        //        {
+        //            targets.Add(runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId]);
+        //        }
+        //        else
+        //        {
+        //            targets.Add(runtimeModel.RoMap.Bases[RuntimeModel.PlayerId]);
+        //        }
+        //    }
+        //    else
+        //    {
+        //        targets.Sort((x, y) => DistanceToOwnBase(x).CompareTo(DistanceToOwnBase(y)));
+
+        //        for (int i = 0; i < maxTargets && i < targets.Count; i++)
+        //        {
+        //            int targetIndex = (unitNumber + i) % targets.Count;
+
+        //            if (IsTargetInRange(targets[targetIndex]))
+        //            {
+        //                result.Add(targets[targetIndex]);
+        //            }
+        //        }
+        //    }
+        //    return result;
+        //}
         public override Vector2Int GetNextStep()
         {
+            base.GetNextStep();
             Vector2Int targetPosition;
             targetPosition = _priorityTargets.Count > 0 ? _priorityTargets[0] : unit.Pos;
             return IsTargetInRange(targetPosition) ? unit.Pos : unit.Pos.CalcNextStepTowards(targetPosition);
@@ -60,7 +114,7 @@ namespace UnitBrains.Player
             ///////////////////////////////////////
             // Homework 1.4 (1st block, 4rd module)
             ///////////////////////////////////////
-            
+
 
             var iD = IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.BotPlayerId;
             var baseCoords = runtimeModel.RoMap.Bases[iD];

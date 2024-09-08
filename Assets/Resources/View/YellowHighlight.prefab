@@ -45,9 +45,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 22045ee4324e4d90ab71d27e56373f92, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  isBlocked: 0
-  isBasePlayer: 0
-  isBaseEnemy: 0
+  isBlocked: 1
+  isBasePlayer: 1
+  isBaseEnemy: 1
 --- !u!1 &7700990438319736146
 GameObject:
   m_ObjectHideFlags: 0

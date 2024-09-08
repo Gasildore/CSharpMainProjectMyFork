@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Assets.Scripts.UnitBrains.Pathfinding;
 using Model;
 using Model.Runtime.Projectiles;
 using Model.Runtime.ReadOnly;
@@ -38,8 +39,8 @@ namespace UnitBrains
 
             var target = runtimeModel.RoMap.Bases[
                 IsPlayerUnitBrain ? RuntimeModel.BotPlayerId : RuntimeModel.PlayerId];// Если цели нет, то выбирает целью базу
-
-            _activePath = new DummyUnitPath(runtimeModel, unit.Pos, target);// Прокладывается путь с помощью класса DummyUnitPath
+            
+            _activePath = new AStarUnitPath(runtimeModel, unit.Pos, target);// Прокладывается путь с помощью алгоритма А*
             return _activePath.GetNextStepFrom(unit.Pos);// Передаёт текущую позицию юнита и возвращает куда идти
         }
 
@@ -96,7 +97,7 @@ namespace UnitBrains
             var units = new List<IReadOnlyUnit>();
             var pos = unit.Pos;
             var distanceSqr = radius * radius;
-            
+
             foreach (var otherUnit in runtimeModel.RoUnits)
             {
                 if (otherUnit == unit)
@@ -157,7 +158,7 @@ namespace UnitBrains
             {
                 if (!IsTargetInRange(possibleTarget))
                     continue;
-                
+
                 result.Add(possibleTarget);
             }
 

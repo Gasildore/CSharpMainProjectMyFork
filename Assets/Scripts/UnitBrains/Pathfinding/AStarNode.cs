@@ -1,24 +1,25 @@
-﻿using System;
+﻿using JetBrains.Annotations;
+using System;
 using UnityEngine;
 
 namespace Assets.Scripts.UnitBrains.Pathfinding
 {
     public class AStarNode
     {
-        public Vector2Int Pos;// Позиция по X/Y
+        public Vector2Int Position;// Позиция по X/Y
         public int Cost = 10;// Стоимость перехода
         public int Estimate;// Оценка расстояния до цели
         public int Value;// Итоговое значение эвристической функции (конечной стоимости перехода)
         public AStarNode Parent;// Ссылка на ноду, "стрелочка"
 
-        public AStarNode(Vector2Int position)
+        public AStarNode(Vector2Int pos)
         {
-            Pos = position;
+            Position = pos;
         }
 
         public void CalculateEstimate(Vector2Int targetPos)// Расчёт расстояния до цели
         {
-            Estimate = Math.Abs(Pos.x - targetPos.x) + Math.Abs(Pos.x - targetPos.y);
+            Estimate = Math.Abs(Position.x - targetPos.x) + Math.Abs(Position.x - targetPos.y);
             // Функция Math.Abs берёт только модуль числа, убирая знак -
         }
 
@@ -32,7 +33,11 @@ namespace Assets.Scripts.UnitBrains.Pathfinding
             if (obj is not AStarNode node)// Если нет- возвращает false
                 return false;
 
-            return Pos.x == node.Pos.x && Pos.y == node.Pos.y;// Иначе - возвращает результат проверки координат
+            return Position.Equals(node.Position);
+        }
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Position);
         }
     }
 }

@@ -1,132 +1,113 @@
 ﻿using Model;
-using Model.Runtime.ReadOnly;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using UnitBrains;
 using UnitBrains.Pathfinding;
 using UnityEngine;
 
 namespace Assets.Scripts.UnitBrains.Pathfinding
 {
-    public partial class AStarUnitPath : BaseUnitPath
+    public class AStarUnitPath : BaseUnitPath
     {
-        private int[] dx = { -1, 0, 1, 0 };// Массивы обозначают смещения по координатам для смены позиции врага {налево, вверх, направо, вниз}
+        private Vector2Int _startPoint;
+        private Vector2Int _endPoint;
+        private int[] dx = { -1, 0, 1, 0 };
         private int[] dy = { 0, 1, 0, -1 };
-
-        private bool _TargetIsFound;// Обнаружена ли цель
-        private bool _EnemyIsReachable;// Достижим ли враг
-        private AStarNode _nextToEnemyUnit;//??????????????????????????????????
 
         public AStarUnitPath(IReadOnlyRuntimeModel runtimeModel, Vector2Int startPoint, Vector2Int endPoint) :
             base(runtimeModel, startPoint, endPoint)
         {
-
+            _startPoint = startPoint;
+            _endPoint = endPoint;
         }
 
-        //public override void Update()
-        //{
-        //    List<AStarNode> path = Calculate();// Путь равняется результатом работы метода
-
-        //    if (path == null)// Если поиск пути невозможен, возвращается
-        //        return;
-
-        //    AStarNode nextPosition = path[1];//Так как позиция юнита это 0, следующую позицию выбираем 1
-        //    TryChangePosition(nextPosition.X, nextPosition.Y, _map);
-        //    // Пытается изменить позицию, и возвращает false если движение невозможно
-        //}
-
-        protected override void Calculate()// Метод поиска пути
+        protected override void Calculate()
         {
-            AStarNode startNode = new AStarNode(startPoint);// Задаёт стартовые координаты
-            AStarNode targetNode = new AStarNode(endPoint);// Задаёт координаты цели
-
-            List<AStarNode> openList = new List<AStarNode> { startNode };
-            // В список вносятся вершины в которые можно пойти, начиная со стартовой ноды
-
-            List<AStarNode> closedList = new List<AStarNode>();
-            // В список вносятся пройденные вершины, которые не участвуют в вычислениях
-
-            while (openList.Count > 0) // Цикл выполняется пока в openList ещё есть ноды
+            if (FindPath() is not null)
             {
-                AStarNode currentNode = openList[0];// Выбирается первая нода из списка (индексация начинается с 0)
+                path = FindPath().ToArray();
+            }
+            else
+            {
+                path = null;
+            }
+
+            if (path == null)
+                path = new Vector2Int[] { StartPoint };
+        }
+
+
+        public List<Vector2Int> FindPath()
+        {
+            AStarNode startNode = new AStarNode(_startPoint);
+            AStarNode targetNode = new AStarNode(_endPoint);
+            List<AStarNode> openList = new List<AStarNode> { startNode };
+            List<AStarNode> closedList = new List<AStarNode>();
+
+            while (openList.Count > 0)
+            {
+                AStarNode currentNode = openList[0];
 
                 foreach (var node in openList)
                 {
-                    if (node.Value < currentNode.Value)// Перебирает ноды в списке и ищет с наименьшим значением эвристической функции
-                        currentNode = node;// Делает такую ноду текущей
+                    if (node.Value < currentNode.Value)
+                        currentNode = node;
                 }
 
-                openList.Remove(currentNode);//Раз эта нода пройдена, то она исключается из открытого списка
-                closedList.Add(currentNode);// И зачисляется в закрытый
+                openList.Remove(currentNode);
+                closedList.Add(currentNode);
 
-                if (_TargetIsFound)
+                if (currentNode.Position.x == targetNode.Position.x && currentNode.Position.y == targetNode.Position.y)
                 {
-                    // Если цель обнаружена на текущем ноде, то прокладывает путь до него
-                    path = FindPath(currentNode);
-                    return;
+                    List<Vector2Int> path = new List<Vector2Int>();
+
+                    while (currentNode != null)
+                    {
+                        path.Add(currentNode.Position);
+                        currentNode = currentNode.Parent;
+                    }
+
+                    path.Reverse();
+                    return path;
                 }
 
                 for (int i = 0; i < dx.Length; i++)
                 {
-                    int newX = currentNode.Pos.x + dx[i];
-                    int newY = currentNode.Pos.y + dy[i];
-                    // Складывают координату текущей ноды и её смещение по оси, и выдает новую координату по Х и Y соответственно
-                    Vector2Int newPos = new Vector2Int(newX, newY);
+                    Vector2Int neighborPos = new Vector2Int(currentNode.Position.x + dx[i], currentNode.Position.y + dy[i]);
 
-                    if (newPos == targetNode.Pos)// Если новые координаты равны позиции цели- цель обнаружена
-                        _TargetIsFound = true;
 
-                    if (runtimeModel.IsTileWalkable(newPos))// Если клетка доступна для хода
+                    if (!IsValid(neighborPos) && neighborPos != _endPoint && !IsBlockedByEnemy(neighborPos))
+                        continue;
+
+
+                    AStarNode neighbor = new AStarNode(neighborPos);
+
+                    if (closedList.Contains(neighbor))
+                        continue;
+
+                    neighbor.Parent = currentNode;
+                    neighbor.CalculateEstimate(targetNode.Position);
+                    neighbor.CalculateValue();
+                    if (!openList.Contains(neighbor))
                     {
-                        AStarNode neighbor = new AStarNode(newPos);// Для неё создаётся нода
-
-                        if (closedList.Contains(neighbor))// Проверяем, что этой ноды нет в закрытом списке
-                            continue;
-
-                        neighbor.Parent = currentNode;// Указываем в направлении текущую ноду
-                        neighbor.CalculateEstimate(targetNode.Pos);// Рассчитываем расстояние
-                        neighbor.CalculateValue();// И стоимость эвристической функции
-
-                        openList.Add(neighbor);// Добавляем ноду в открытый список
-                    }
-
-                    if (CheckEncounter(newPos) && !_EnemyIsReachable)//Проверка столкновения с противником
-                    {
-                        _EnemyIsReachable = true;
-                        _nextToEnemyUnit = currentNode;
+                        openList.Add(neighbor);
                     }
                 }
             }
 
-            if (_EnemyIsReachable)
-            {
-                path = FindPath(_nextToEnemyUnit);// Прокладывает путь до противника
-                return;
-            }
-
-            path = new Vector2Int[] { startNode.Pos };
-        }
-        private Vector2Int[] FindPath(AStarNode node)
-        {
-            List<Vector2Int> path = new();// Создаёт список пролагаемого пути
-
-            while (node != null)// Цикл движется в обратном порядке, пока currentNode имеет значение
-            {
-                path.Add(node.Pos);// Помещает текущую ноду в список "путь"
-                node = node.Parent;// Подставляет под текущую ноду следующую из Parent
-            }
-            path.Reverse();// Разворачивает список в обратном (правильном) порядке
-            return path.ToArray();// Возвращает список пути
+            return null;
         }
 
-        private bool CheckEncounter(Vector2Int newPos)
+        private bool IsValid(Vector2Int tempPos)
         {
-            var botUnitPositions = runtimeModel.RoBotUnits.Select(u => u.Pos).Where(u => u == newPos);
-            return botUnitPositions.Any();
-        }        
+            bool containsX = tempPos.x >= 0 && tempPos.x < runtimeModel.RoMap.Width;
+            bool containsY = tempPos.y >= 0 && tempPos.y < runtimeModel.RoMap.Height;
+            return containsX && containsY && runtimeModel.IsTileWalkable(tempPos);
+        }
+
+        private bool IsBlockedByEnemy(Vector2Int tempPos)
+        {
+            var botPos = runtimeModel.RoBotUnits.Select(u => u.Pos).Where(u => u == tempPos);
+            return botPos.Any();
+        }
     }
 }

@@ -9,6 +9,7 @@ namespace UnitBrains.Pathfinding
         public Vector2Int StartPoint => startPoint;
         public Vector2Int EndPoint => endPoint;
         
+        public IEnumerable<Vector2Int> AStarNode {  get; internal set; }
         protected readonly IReadOnlyRuntimeModel runtimeModel;// Проверяет, является ли клетка проходимой
         protected readonly Vector2Int startPoint;// Стартовая точка
         protected readonly Vector2Int endPoint;// Конечная точка
