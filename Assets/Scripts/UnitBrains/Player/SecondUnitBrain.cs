@@ -45,62 +45,7 @@ namespace UnitBrains.Player
                 }
             ///////////////////////////////////////
         }
-
-        //public override Vector2Int GetNextStep()
-        //{
-        //    if (targets.Count > 0)
-        //    {
-        //        if (IsTargetInRange(targets[0]))
-        //        {
-        //            return unit.Pos;
-        //        }
-        //        var path = new AStarUnitPath(runtimeModel, unit.Pos, targets[0]);
-        //        return path.GetNextStepFrom(unit.Pos);
-        //    }
-        //    else
-        //    {
-        //        return unit.Pos;
-        //    }
-        //}
-
-
-        //protected override List<Vector2Int> SelectTargets()
-        //{
-        //    List<Vector2Int> result = new List<Vector2Int>();
-
-        //    targets.Clear();
-
-        //    foreach (Vector2Int target in GetAllTargets())
-        //    {
-        //        targets.Add(target);
-        //    }
-        //    if (targets.Count == 0)
-        //    {
-        //        if (IsPlayerUnitBrain)
-        //        {
-        //            targets.Add(runtimeModel.RoMap.Bases[RuntimeModel.BotPlayerId]);
-        //        }
-        //        else
-        //        {
-        //            targets.Add(runtimeModel.RoMap.Bases[RuntimeModel.PlayerId]);
-        //        }
-        //    }
-        //    else
-        //    {
-        //        targets.Sort((x, y) => DistanceToOwnBase(x).CompareTo(DistanceToOwnBase(y)));
-
-        //        for (int i = 0; i < maxTargets && i < targets.Count; i++)
-        //        {
-        //            int targetIndex = (unitNumber + i) % targets.Count;
-
-        //            if (IsTargetInRange(targets[targetIndex]))
-        //            {
-        //                result.Add(targets[targetIndex]);
-        //            }
-        //        }
-        //    }
-        //    return result;
-        //}
+               
         public override Vector2Int GetNextStep()
         {
             base.GetNextStep();
